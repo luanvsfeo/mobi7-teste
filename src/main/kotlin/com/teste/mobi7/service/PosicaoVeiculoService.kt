@@ -1,6 +1,8 @@
 package com.teste.mobi7.service
 
 import com.teste.mobi7.dto.PosicaoVeiculoDto
+import com.teste.mobi7.model.extensions.converterDto
+import com.teste.mobi7.model.extensions.converterParaModel
 import com.teste.mobi7.repository.PosicaoVeiculoRepository
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -9,12 +11,13 @@ import org.springframework.stereotype.Service
 class PosicaoVeiculoService(
     val posicaoVeiculoRepository: PosicaoVeiculoRepository
 ) {
-    // colocar log
-
     private val log = LoggerFactory.getLogger(this::class.java)
 
-
     fun criar(posicaoVeiculoDto: PosicaoVeiculoDto): PosicaoVeiculoDto {
-        return posicaoVeiculoRepository.save(posicaoVeiculoDto.converterParaModel()).converterDto()
+        log.info("m=criar; step=start; posicaoVeiculoDto=${posicaoVeiculoDto}")
+        val posicaoVeiculo = posicaoVeiculoDto.converterParaModel();
+        val posicaoVeiculoCriado = posicaoVeiculoRepository.save(posicaoVeiculo)
+        log.info("m=criar; step=finished; posicaoVeiculoCriado=${posicaoVeiculoCriado}")
+        return posicaoVeiculoCriado.converterDto()
     }
 }

@@ -9,7 +9,7 @@ import java.time.LocalDateTime
 
 
 @Entity
-class PosicaoVeiculo(
+data class PosicaoVeiculo(
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -26,19 +26,7 @@ class PosicaoVeiculo(
     var longitude: Double,
 
     var veiculoLigado: Boolean
-) {
-
-    fun converterDto(): PosicaoVeiculoDto {
-        return PosicaoVeiculoDto(
-            this.placaVeiculo,
-            this.dataPosicao,
-            this.velocidadeVeiculo,
-            this.latitude,
-            this.longitude,
-            this.veiculoLigado
-        )
-    }
-}
+)
 
 /*
 TESTE001,Wed Dec 19 2018 15:07:19 GMT-0200 (Hora oficial do Brasil),10,-

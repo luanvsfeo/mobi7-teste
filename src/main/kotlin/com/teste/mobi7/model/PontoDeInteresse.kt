@@ -8,7 +8,7 @@ import jakarta.persistence.Id
 
 
 @Entity
-class PontoDeInteresse(
+data class PontoDeInteresse(
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -21,18 +21,7 @@ class PontoDeInteresse(
     var latitude: Double,
 
     var longitude: Double
-) {
-    fun converterParaDto(): PontoDeInteresseDto {
-        return PontoDeInteresseDto(
-            this.nome,
-            this.raioEmMetros,
-            this.latitude,
-            this.longitude
-        )
-    }
-}
+)
 
+/* PONTO 24,350,-25.36496636999715,-51.46980205405271 */
 
-/*
-PONTO 24,350,-25.36496636999715,-51.46980205405271
- */

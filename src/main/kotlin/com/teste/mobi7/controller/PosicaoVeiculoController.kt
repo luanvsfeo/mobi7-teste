@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.RequestBody
 
 @RestController
 @RequestMapping("/posicaoVeiculo")
@@ -19,7 +20,7 @@ class PosicaoVeiculoController(
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    fun criarNovaPosicaoVeiculo(posicaoVeiculoDto: PosicaoVeiculoDto): PosicaoVeiculoDto {
+    fun criarNovaPosicaoVeiculo(@RequestBody posicaoVeiculoDto: PosicaoVeiculoDto): PosicaoVeiculoDto {
         log.info("m=criarNovaPosicaoVeiculo; step=start")
         val response = posicaoVeiculoService.criar(posicaoVeiculoDto)
         log.info("m=criarNovaPosicaoVeiculo; step=finished; result=${response}")

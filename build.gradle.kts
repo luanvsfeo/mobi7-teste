@@ -13,6 +13,9 @@ version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
+	maven {
+		url = uri("https://repo.osgeo.org/repository/release/")
+	}
 	mavenCentral()
 }
 
@@ -24,6 +27,11 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	runtimeOnly ("com.h2database:h2")
 	runtimeOnly ("org.postgresql:postgresql")
+	//
+	implementation("org.geotools:gt-shapefile:28.1")
+	implementation("org.geotools:gt-swing:28.1")
+	implementation("org.geotools:gt-epsg-hsql:28.1")
+	implementation("org.geotools:gt-main:28.1")
 
 	// swagger-ui
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.0")
