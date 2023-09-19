@@ -28,13 +28,24 @@ class RelatorioService(
 
     fun buscarPorFiltro() {
 
+        // criar map da relacao placaCarro X (local e tempo)
+
 
         var ponto = PontoDeInteresse(1, "padaria do ze", 100, -25.36496636999715, -51.46980205405271)
-        var list = generateList()
-        list.sortBy { it.dataPosicao }
+        var posicaoVeiculoLista = generateList()
+        posicaoVeiculoLista.sortBy { it.dataPosicao }
 
-        //  val listaPosicoes = posicaoVeiculoRepository.findAll()
-        //val listaPoi = pontoDeInteresseRepository.findAll()
+        for (posicaoVeiculo in posicaoVeiculoLista) {
+            // pegar o ponto anterior
+            //nao fazer essa logica no primeiro ponto apenas se tiver apenas um ponto na lista
+
+            if (estaDentroDoCirculo(converterEmCirculo(ponto), converterEmPonto(posicaoVeiculo))) {
+                calcularTempoEntreDuasDatasEmMinutos(LocalDateTime.now(), posicaoVeiculo.dataPosicao)
+            }
+
+        }
+        // val listaPosicoes = posicaoVeiculoRepository.findAll()
+        // val listaPoi = pontoDeInteresseRepository.findAll()
 
 
         // buscar as posicoes por data e/ou placa de veiculo
@@ -47,8 +58,11 @@ class RelatorioService(
          */
     }
 
-    private fun calcularTempoEntreDuasDatasEmMinutos(dataPontoAtual: LocalDateTime, dataPontoAnterior: LocalDateTime) : Long {
-        return ChronoUnit.MINUTES.between(dataPontoAtual,dataPontoAtual)
+    private fun calcularTempoEntreDuasDatasEmMinutos(
+        dataPontoAtual: LocalDateTime,
+        dataPontoAnterior: LocalDateTime
+    ): Long {
+        return ChronoUnit.MINUTES.between(dataPontoAtual, dataPontoAnterior)
     }
 
     private fun estaDentroDoCirculo(
@@ -62,6 +76,19 @@ class RelatorioService(
         val geometryFactory = GeometryFactory()
         return geometryFactory.createPoint(Coordinate(latitude, longitude))
     }
+
+    private fun converterEmPonto(posicaoVeiculo: PosicaoVeiculo): Geometry {
+        return converterEmPonto(posicaoVeiculo.latitude, posicaoVeiculo.longitude)
+    }
+
+    private fun converterEmCirculo(pontoDeInteresse: PontoDeInteresse): Polygon {
+        return converterEmCirculo(
+            pontoDeInteresse.latitude,
+            pontoDeInteresse.longitude,
+            pontoDeInteresse.raioEmMetros.toDouble()
+        )
+    }
+
 
     private fun converterEmCirculo(latitude: Double, longitude: Double, raioEmMetros: Double): Polygon {
         // -25.36496636999715, -51.46980205405271
