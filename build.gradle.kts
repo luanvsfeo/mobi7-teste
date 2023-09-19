@@ -32,6 +32,8 @@ dependencies {
 	implementation("org.geotools:gt-swing:28.1")
 	implementation("org.geotools:gt-epsg-hsql:28.1")
 	implementation("org.geotools:gt-main:28.1")
+	implementation("org.geotools.xsd:gt-xsd-gml3:28.1")
+	implementation("org.geotools:gt-geojson:28.1")
 
 	// swagger-ui
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.0")

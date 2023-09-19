@@ -23,4 +23,4 @@ springdoc:
 
 server:
   error:
-    include-message: always
+    include-message: ALWAYS
