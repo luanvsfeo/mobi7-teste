@@ -1,6 +1,7 @@
 package com.teste.mobi7.controller
 
 import com.teste.mobi7.controller.filter.PosicaoVeiculoFilter
+import com.teste.mobi7.dto.PontoInteresseTempoDto
 import com.teste.mobi7.service.RelatorioService
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
@@ -10,13 +11,13 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/relatorio")
-class RelatorioController (
-    val relatorioService: RelatorioService
-){
+class RelatorioController(
+	val relatorioService: RelatorioService
+) {
 
-    @GetMapping
-    @ResponseStatus(HttpStatus.OK)
-    fun retornarRelatorioDeVeiculosRelacionadoAoPontoDeInteresse(posicaoVeiculoFilter : PosicaoVeiculoFilter) {
-        relatorioService.buscarPorFiltro(posicaoVeiculoFilter)
-    }
+	@GetMapping
+	@ResponseStatus(HttpStatus.OK)
+	fun retornarRelatorioDeVeiculosRelacionadoAoPontoDeInteresse(posicaoVeiculoFilter: PosicaoVeiculoFilter?): MutableMap<String, List<PontoInteresseTempoDto>> {
+		return relatorioService.buscarPorFiltro(posicaoVeiculoFilter)
+	}
 }

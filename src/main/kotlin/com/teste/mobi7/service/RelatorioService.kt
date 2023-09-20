@@ -2,10 +2,9 @@ package com.teste.mobi7.service
 
 import com.teste.mobi7.controller.filter.PosicaoVeiculoFilter
 import com.teste.mobi7.dto.PontoInteresseTempoDto
+import com.teste.mobi7.dto.PosicaoVeiculoDto
 import com.teste.mobi7.model.PontoDeInteresse
 import com.teste.mobi7.model.PosicaoVeiculo
-import com.teste.mobi7.repository.PontoDeInteresseRepository
-import com.teste.mobi7.repository.PosicaoVeiculoRepository
 import org.apache.commons.collections4.SetValuedMap
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap
 import org.locationtech.jts.geom.Coordinate
@@ -27,7 +26,7 @@ class RelatorioService(
 	val pontoDeInteresseService: PontoDeInteresseService,
 ) {
 
-	fun buscarPorFiltro(posicaoVeiculoFilter: PosicaoVeiculoFilter): SetValuedMap<String, PontoInteresseTempoDto> {
+	fun buscarPorFiltro(posicaoVeiculoFilter: PosicaoVeiculoFilter?): MutableMap<String, List<PontoInteresseTempoDto>> {
 
 		var pontoDeInteresseLista = pontoDeInteresseService.buscarTodos()
 		var posicaoVeiculoLista = posicaoVeiculoService.buscarPorFiltro(posicaoVeiculoFilter)
@@ -36,15 +35,16 @@ class RelatorioService(
 
 		val mapPlacaVeiculoPontoInteresseTempo = construirMapPlacaVeiculoPontoInteresseTempo(mapPlacaVeiculoPosicaoVeiculo, pontoDeInteresseLista)
 
-		return mapPlacaVeiculoPontoInteresseTempo
+		val testeConversao = converterEmDto(mapPlacaVeiculoPontoInteresseTempo)
+
+		return testeConversao
 	}
 
 	private fun construirMapPlacaVeiculoPontoInteresseTempo(
 		mapPlacaVeiculoPosicaoVeiculo: SetValuedMap<String, PosicaoVeiculo>,
 		pontoInteresseLista: MutableList<PontoDeInteresse>
-	): SetValuedMap<String, PontoInteresseTempoDto> {
-
-		var mapTempoPlacaLocal: SetValuedMap<String, PontoInteresseTempoDto> = HashSetValuedHashMap()
+	): MutableMap<String, MutableMap<String, Long>> {
+		var mapTempoPlacaLocal: MutableMap<String, MutableMap<String, Long>> = HashMap()
 
 		for (placaVeiculoString in mapPlacaVeiculoPosicaoVeiculo.keySet()) {
 
@@ -59,17 +59,37 @@ class RelatorioService(
 					continue
 				} else if (i >= 1) {
 					pontoInteresseLista.forEach {
+
 						val posicaoAnterior = listPosicaoVeiculo.get(i - 1)
+
 						if (estaoDentroDoCirculo(it, listOf(posicaoVeiculo, posicaoAnterior))) {
-							val tempoDentroDoPOIEmMinutos = calcularTempoEntreDuasDatasEmMinutos(
+							var tempoDentroDoPOIEmMinutos = calcularTempoEntreDuasDatasEmMinutos(
 								posicaoAnterior.dataPosicao,
 								posicaoVeiculo.dataPosicao
 							)
 
-							mapTempoPlacaLocal.put(
-								posicaoVeiculo.placaVeiculo,
-								PontoInteresseTempoDto(it.nome, tempoDentroDoPOIEmMinutos)
-							)
+							if (mapTempoPlacaLocal[posicaoVeiculo.placaVeiculo]?.containsKey(it.nome) == true) {
+								var tempoDentroDoPOIEmMinutosIncrementadoComValoresAnteriores =
+									mapTempoPlacaLocal[posicaoVeiculo.placaVeiculo]?.get(it.nome)
+								tempoDentroDoPOIEmMinutosIncrementadoComValoresAnteriores =
+									tempoDentroDoPOIEmMinutosIncrementadoComValoresAnteriores?.plus(
+										tempoDentroDoPOIEmMinutos
+									)
+
+								tempoDentroDoPOIEmMinutosIncrementadoComValoresAnteriores?.let { it1 ->
+									mapTempoPlacaLocal[posicaoVeiculo.placaVeiculo]?.replace(
+										it.nome,
+										tempoDentroDoPOIEmMinutosIncrementadoComValoresAnteriores
+									)
+								}
+							} else if (mapTempoPlacaLocal[posicaoVeiculo.placaVeiculo].isNullOrEmpty()) {
+								mapTempoPlacaLocal[posicaoVeiculo.placaVeiculo] = mutableMapOf(Pair(it.nome, tempoDentroDoPOIEmMinutos))
+							} else {
+								var listaJaExistente: MutableMap<String, Long> = mapTempoPlacaLocal[posicaoVeiculo.placaVeiculo]!!.toMutableMap()
+								listaJaExistente?.put(it.nome, tempoDentroDoPOIEmMinutos)
+								mapTempoPlacaLocal[posicaoVeiculo.placaVeiculo] = listaJaExistente
+							}
+
 						}
 					}
 				}
@@ -77,6 +97,19 @@ class RelatorioService(
 			}
 		}
 		return mapTempoPlacaLocal
+	}
+
+	private fun converterEmDto(mapPlacaVeiculoPontoInteresseTempo: MutableMap<String, MutableMap<String, Long>>) : MutableMap<String, List<PontoInteresseTempoDto>> {
+		var map : MutableMap<String, List<PontoInteresseTempoDto>> = mutableMapOf<String, List<PontoInteresseTempoDto>>()
+
+		mapPlacaVeiculoPontoInteresseTempo.forEach{
+			var lista = mutableListOf<PontoInteresseTempoDto>()
+			for(objeto in it.value){
+				lista.add(PontoInteresseTempoDto(objeto.key,objeto.value))
+			}
+			map.put(it.key,lista)
+		}
+		return map
 	}
 
 	private fun estaoDentroDoCirculo(

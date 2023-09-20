@@ -10,6 +10,6 @@ interface PosicaoVeiculoRepository : JpaRepository<PosicaoVeiculo, Int>{
 
 	fun findAllByDataPosicao(dataPosicao: LocalDateTime) : MutableList<PosicaoVeiculo>
 
-	fun findAllByDataPosicaoAndPlacaVeiculo(placaVeiculo: String,dataPosicao: LocalDateTime) : MutableList<PosicaoVeiculo>
+	fun findAllByPlacaVeiculoAndDataPosicao(placaVeiculo: String, dataPosicao: LocalDateTime) : MutableList<PosicaoVeiculo>
 }
 
