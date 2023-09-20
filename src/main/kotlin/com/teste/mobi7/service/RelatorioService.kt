@@ -1,5 +1,6 @@
 package com.teste.mobi7.service
 
+import com.teste.mobi7.dto.PontoInteresseTempoDto
 import com.teste.mobi7.model.PontoDeInteresse
 import com.teste.mobi7.model.PosicaoVeiculo
 import com.teste.mobi7.repository.PontoDeInteresseRepository
@@ -29,45 +30,25 @@ class RelatorioService(
 
 
 	fun buscarPorFiltro() {
+		// buscar as posicoes por data e/ou placa de veiculo
 
-		// criar map da relacao placaCarro X (local e tempo)
-
-		var pontoDeInteresseLista = generateList2()
-		var posicaoVeiculoLista = generateList()
+		var pontoDeInteresseLista = generateList2() // buscar no banco
+		var posicaoVeiculoLista = generateList() // buscar no banco
 
 		val mapPlacaVeiculoPosicaoVeiculo = separarPorPlacaDeVeiculo(posicaoVeiculoLista)
 
 
-		percorrerMap(mapPlacaVeiculoPosicaoVeiculo, pontoDeInteresseLista)
+		val mapPlacaVeiculoPontoInteresseTempo =
+			construirMapPlacaVeiculoPontoInteresseTempo(mapPlacaVeiculoPosicaoVeiculo, pontoDeInteresseLista)
 
-
-//		for (posicaoVeiculo in posicaoVeiculoLista) {
-//			// pegar o ponto anterior
-//			//nao fazer essa logica no primeiro ponto apenas se tiver apenas um ponto na lista
-//
-//			if (estaDentroDoCirculo(converterEmCirculo(ponto), converterEmPonto(posicaoVeiculo))) {
-//				calcularTempoEntreDuasDatasEmMinutos(LocalDateTime.now(), posicaoVeiculo.dataPosicao)
-//			}
-//
-//		}
-		// val listaPosicoes = posicaoVeiculoRepository.findAll()
-		// val listaPoi = pontoDeInteresseRepository.findAll()
-
-
-		// buscar as posicoes por data e/ou placa de veiculo
-
-		/*
-			busca as posicoes
-			separa por veiculo ou separa por poi
-			faz o calculo do poi
-			retorna a lista de poi por veiculo
-		 */
 	}
 
-	private fun percorrerMap(
+	private fun construirMapPlacaVeiculoPontoInteresseTempo(
 		mapPlacaVeiculoPosicaoVeiculo: SetValuedMap<String, PosicaoVeiculo>,
 		pontoInteresseLista: MutableList<PontoDeInteresse>
-	) {
+	): SetValuedMap<String, PontoInteresseTempoDto> {
+
+		var mapTempoPlacaLocal: SetValuedMap<String, PontoInteresseTempoDto> = HashSetValuedHashMap()
 
 		for (placaVeiculoString in mapPlacaVeiculoPosicaoVeiculo.keySet()) {
 
@@ -82,17 +63,41 @@ class RelatorioService(
 					continue
 				} else if (i >= 1) {
 					pontoInteresseLista.forEach {
-						if (estaDentroDoCirculo(converterEmCirculo(it), converterEmPonto(posicaoVeiculo))) {
-							val posicaoAnterior = listPosicaoVeiculo.get(i - 1)
+						val posicaoAnterior = listPosicaoVeiculo.get(i - 1)
+						if (estaoDentroDoCirculo(it, listOf(posicaoVeiculo, posicaoAnterior))) {
 							val tempoDentroDoPOIEmMinutos = calcularTempoEntreDuasDatasEmMinutos(
-								posicaoVeiculo.dataPosicao,
-								posicaoAnterior.dataPosicao
+								posicaoAnterior.dataPosicao,
+								posicaoVeiculo.dataPosicao
+							)
+
+							mapTempoPlacaLocal.put(
+								posicaoVeiculo.placaVeiculo,
+								PontoInteresseTempoDto(it.nome, tempoDentroDoPOIEmMinutos)
 							)
 						}
 					}
 				}
 				i += 1;
 			}
+		}
+		return mapTempoPlacaLocal
+	}
+
+	private fun estaoDentroDoCirculo(
+		pontoDeInteresse: PontoDeInteresse,
+		posicaoVeiculoLista: List<PosicaoVeiculo>
+	): Boolean {
+		return if (posicaoVeiculoLista.size == 2) {
+			estaDentroDoCirculo(
+				converterEmCirculo(pontoDeInteresse),
+				converterEmPonto(posicaoVeiculoLista[0])
+			) &&
+					estaDentroDoCirculo(
+						converterEmCirculo(pontoDeInteresse),
+						converterEmPonto(posicaoVeiculoLista[1])
+					)
+		} else {
+			false
 		}
 	}
 
@@ -204,11 +209,7 @@ class RelatorioService(
 
 	private fun generateList2(): MutableList<PontoDeInteresse> {
 		var list = mutableListOf<PontoDeInteresse>()
-
 		list.add(PontoDeInteresse(1, "padaria do ze", 100, -25.36496636999715, -51.46980205405271))
-		list.add(PontoDeInteresse(1, "padaria do ze", 100, -25.36496636999715, -51.46980205405271))
-		list.add(PontoDeInteresse(1, "padaria do ze", 100, -25.36496636999715, -51.46980205405271))
-
 		return list
 	}
 }
