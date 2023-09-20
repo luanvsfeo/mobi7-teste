@@ -1,5 +1,6 @@
 package com.teste.mobi7.service
 
+import com.teste.mobi7.controller.filter.PosicaoVeiculoFilter
 import com.teste.mobi7.dto.PontoInteresseTempoDto
 import com.teste.mobi7.model.PontoDeInteresse
 import com.teste.mobi7.model.PosicaoVeiculo
@@ -22,25 +23,20 @@ import kotlin.math.cos
 
 @Service
 class RelatorioService(
-	val posicaoVeiculoRepository: PosicaoVeiculoRepository,
-	val pontoDeInteresseRepository: PontoDeInteresseRepository,
+	val posicaoVeiculoService: PosicaoVeiculoService,
+	val pontoDeInteresseService: PontoDeInteresseService,
 ) {
 
-	// todo - depois trocar para as services
+	fun buscarPorFiltro(posicaoVeiculoFilter: PosicaoVeiculoFilter): SetValuedMap<String, PontoInteresseTempoDto> {
 
-
-	fun buscarPorFiltro() {
-		// buscar as posicoes por data e/ou placa de veiculo
-
-		var pontoDeInteresseLista = generateList2() // buscar no banco
-		var posicaoVeiculoLista = generateList() // buscar no banco
+		var pontoDeInteresseLista = pontoDeInteresseService.buscarTodos()
+		var posicaoVeiculoLista = posicaoVeiculoService.buscarPorFiltro(posicaoVeiculoFilter)
 
 		val mapPlacaVeiculoPosicaoVeiculo = separarPorPlacaDeVeiculo(posicaoVeiculoLista)
 
+		val mapPlacaVeiculoPontoInteresseTempo = construirMapPlacaVeiculoPontoInteresseTempo(mapPlacaVeiculoPosicaoVeiculo, pontoDeInteresseLista)
 
-		val mapPlacaVeiculoPontoInteresseTempo =
-			construirMapPlacaVeiculoPontoInteresseTempo(mapPlacaVeiculoPosicaoVeiculo, pontoDeInteresseLista)
-
+		return mapPlacaVeiculoPontoInteresseTempo
 	}
 
 	private fun construirMapPlacaVeiculoPontoInteresseTempo(
