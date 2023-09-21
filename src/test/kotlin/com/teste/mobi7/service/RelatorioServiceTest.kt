@@ -260,7 +260,6 @@ class RelatorioServiceTest {
 		return list
 	}
 
-
 	private fun gerarListaPontoInteresse(): MutableList<PontoDeInteresse> {
 		var list = mutableListOf<PontoDeInteresse>()
 		list.add(PontoDeInteresse(1, "padaria do ze", 100, -25.36496636999715, -51.46980205405271))
