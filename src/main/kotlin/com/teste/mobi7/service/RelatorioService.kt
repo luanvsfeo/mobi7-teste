@@ -2,7 +2,6 @@ package com.teste.mobi7.service
 
 import com.teste.mobi7.controller.filter.PosicaoVeiculoFilter
 import com.teste.mobi7.dto.PontoInteresseTempoDto
-import com.teste.mobi7.dto.PosicaoVeiculoDto
 import com.teste.mobi7.model.PontoDeInteresse
 import com.teste.mobi7.model.PosicaoVeiculo
 import org.apache.commons.collections4.SetValuedMap
@@ -13,9 +12,7 @@ import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.Polygon
 import org.locationtech.jts.util.GeometricShapeFactory
 import org.springframework.stereotype.Service
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.temporal.ChronoUnit
 import kotlin.math.cos
 
@@ -35,9 +32,9 @@ class RelatorioService(
 
 		val mapPlacaVeiculoPontoInteresseTempo = construirMapPlacaVeiculoPontoInteresseTempo(mapPlacaVeiculoPosicaoVeiculo, pontoDeInteresseLista)
 
-		val testeConversao = converterEmDto(mapPlacaVeiculoPontoInteresseTempo)
+		val mapPlacaVeiculoLocalTempoDto = converterEmDto(mapPlacaVeiculoPontoInteresseTempo)
 
-		return testeConversao
+		return mapPlacaVeiculoLocalTempoDto
 	}
 
 	private fun construirMapPlacaVeiculoPontoInteresseTempo(
@@ -100,22 +97,34 @@ class RelatorioService(
 	}
 
 	private fun converterEmDto(mapPlacaVeiculoPontoInteresseTempo: MutableMap<String, MutableMap<String, Long>>) : MutableMap<String, List<PontoInteresseTempoDto>> {
-		var map : MutableMap<String, List<PontoInteresseTempoDto>> = mutableMapOf<String, List<PontoInteresseTempoDto>>()
+		var mutableMap : MutableMap<String, List<PontoInteresseTempoDto>> = mutableMapOf<String, List<PontoInteresseTempoDto>>()
 
 		mapPlacaVeiculoPontoInteresseTempo.forEach{
-			var lista = mutableListOf<PontoInteresseTempoDto>()
-			for(objeto in it.value){
-				lista.add(PontoInteresseTempoDto(objeto.key,objeto.value))
+			var PontoInteresseTempoDtoLista = mutableListOf<PontoInteresseTempoDto>()
+			for(mapNomeLocalTempo in it.value){
+				PontoInteresseTempoDtoLista.add(PontoInteresseTempoDto(mapNomeLocalTempo.key,mapNomeLocalTempo.value))
 			}
-			map.put(it.key,lista)
+			mutableMap.put(it.key,PontoInteresseTempoDtoLista)
 		}
+		return mutableMap
+	}
+
+	private fun separarPorPlacaDeVeiculo(posicaoVeiculoList: MutableList<PosicaoVeiculo>): SetValuedMap<String, PosicaoVeiculo> {
+
+		var map: SetValuedMap<String, PosicaoVeiculo> = HashSetValuedHashMap()
+
+		for (posicao in posicaoVeiculoList) {
+			map.put(posicao.placaVeiculo, posicao)
+		}
+
 		return map
 	}
 
-	private fun estaoDentroDoCirculo(
-		pontoDeInteresse: PontoDeInteresse,
-		posicaoVeiculoLista: List<PosicaoVeiculo>
-	): Boolean {
+	private fun calcularTempoEntreDuasDatasEmMinutos(dataPontoAtual: LocalDateTime,dataPontoAnterior: LocalDateTime): Long {
+		return ChronoUnit.MINUTES.between(dataPontoAtual, dataPontoAnterior)
+	}
+
+	private fun estaoDentroDoCirculo(pontoDeInteresse: PontoDeInteresse,posicaoVeiculoLista: List<PosicaoVeiculo>): Boolean {
 		return if (posicaoVeiculoLista.size == 2) {
 			estaDentroDoCirculo(
 				converterEmCirculo(pontoDeInteresse),
@@ -130,36 +139,17 @@ class RelatorioService(
 		}
 	}
 
-
-	private fun separarPorPlacaDeVeiculo(posicaoVeiculoList: MutableList<PosicaoVeiculo>): SetValuedMap<String, PosicaoVeiculo> {
-
-		var map: SetValuedMap<String, PosicaoVeiculo> = HashSetValuedHashMap()
-
-		for (posicao in posicaoVeiculoList) {
-			map.put(posicao.placaVeiculo, posicao)
-		}
-
-		return map
-	}
-
-	private fun calcularTempoEntreDuasDatasEmMinutos(
-		dataPontoAtual: LocalDateTime,
-		dataPontoAnterior: LocalDateTime
-	): Long {
-		return ChronoUnit.MINUTES.between(dataPontoAtual, dataPontoAnterior)
-	}
-
 	private fun estaDentroDoCirculo(circulo: Polygon, ponto: Geometry): Boolean {
 		return circulo.contains(ponto)
+	}
+
+	private fun converterEmPonto(posicaoVeiculo: PosicaoVeiculo): Geometry {
+		return converterEmPonto(posicaoVeiculo.latitude, posicaoVeiculo.longitude)
 	}
 
 	private fun converterEmPonto(latitude: Double, longitude: Double): Geometry {
 		val geometryFactory = GeometryFactory()
 		return geometryFactory.createPoint(Coordinate(latitude, longitude))
-	}
-
-	private fun converterEmPonto(posicaoVeiculo: PosicaoVeiculo): Geometry {
-		return converterEmPonto(posicaoVeiculo.latitude, posicaoVeiculo.longitude)
 	}
 
 	private fun converterEmCirculo(pontoDeInteresse: PontoDeInteresse): Polygon {
@@ -186,59 +176,4 @@ class RelatorioService(
 		return shapeFactory.createEllipse()
 	}
 
-	private fun generateList(): MutableList<PosicaoVeiculo> {
-		var list = mutableListOf<PosicaoVeiculo>()
-
-		list.add(
-			PosicaoVeiculo(
-				2,
-				"teste",
-				LocalDateTime.of(LocalDate.now(), LocalTime.of(11, 20)),
-				0,
-				-25.364617,
-				-51.469893,
-				false
-			)
-		) // dentro
-		list.add(
-			PosicaoVeiculo(
-				3,
-				"teste",
-				LocalDateTime.of(LocalDate.now(), LocalTime.of(10, 30)),
-				0,
-				-25.364966,
-				-51.479802,
-				false
-			)
-		) // fora
-		list.add(
-			PosicaoVeiculo(
-				4,
-				"teste",
-				LocalDateTime.of(LocalDate.now(), LocalTime.of(12, 40)),
-				0,
-				-25.366574,
-				-51.4716927,
-				false
-			)
-		) // fora
-		list.add(
-			PosicaoVeiculo(
-				5,
-				"teste",
-				LocalDateTime.of(LocalDate.now(), LocalTime.of(10, 50)),
-				0,
-				-25.3651379,
-				-51.4697745,
-				false
-			)
-		) // dentro
-		return list
-	}
-
-	private fun generateList2(): MutableList<PontoDeInteresse> {
-		var list = mutableListOf<PontoDeInteresse>()
-		list.add(PontoDeInteresse(1, "padaria do ze", 100, -25.36496636999715, -51.46980205405271))
-		return list
-	}
 }

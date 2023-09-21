@@ -25,7 +25,7 @@ class PosicaoVeiculoService(
 
 
 	fun buscarPorFiltro(posicaoVeiculoFilter: PosicaoVeiculoFilter?): MutableList<PosicaoVeiculo> {
-		// todo - colocar log
+		// todo - colocar log e testar se o filtro esta realmente funcionando
 
 		return if (posicaoVeiculoFilter?.placaVeiculo == null && posicaoVeiculoFilter?.dataPosicao == null) {
 			posicaoVeiculoRepository.findAll()

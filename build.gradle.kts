@@ -37,6 +37,8 @@ dependencies {
 
 	// swagger-ui
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.0")
+
+	testImplementation ("io.mockk:mockk:1.9.3")
 }
 
 tasks.withType<KotlinCompile> {
