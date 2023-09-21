@@ -11,6 +11,7 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 
 class RelatorioServiceTest {
+	// todo - criar teste de integracao com o banco de dados h2 (teste de criacao no banco)
 
 	private val posicaoVeiculoService: PosicaoVeiculoService = mockk()
 	private val pontoDeInteresseService: PontoDeInteresseService = mockk()
