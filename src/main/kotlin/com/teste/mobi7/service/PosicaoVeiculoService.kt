@@ -25,9 +25,9 @@ class PosicaoVeiculoService(
 
 
 	fun buscarPorFiltro(posicaoVeiculoFilter: PosicaoVeiculoFilter?): MutableList<PosicaoVeiculo> {
-		// todo - colocar log
+		log.info("m=buscarPorFiltro; step=start; posicaoVeiculoFilter=${posicaoVeiculoFilter}")
 
-		return if (posicaoVeiculoFilter?.estaVazio() == true) {
+		val posicaoVeiculoLista =  if (posicaoVeiculoFilter?.estaVazio() == true) {
 			posicaoVeiculoRepository.findAll()
 		} else (if (posicaoVeiculoFilter?.estaApenasComPlacaVeiculoPreenchido() == true) {
 			posicaoVeiculoRepository.findAllByPlacaVeiculo(posicaoVeiculoFilter.placaVeiculo!!).toMutableList()
@@ -43,5 +43,8 @@ class PosicaoVeiculoService(
 		} else {
 			listOf<PosicaoVeiculo>()
 		}).toMutableList()
+
+		log.info("m=buscarPorFiltro; step=finished; posicaoVeiculoFilter=${posicaoVeiculoFilter}, resposta=${posicaoVeiculoLista}")
+		return posicaoVeiculoLista
 	}
 }

@@ -23,7 +23,9 @@ class PontoDeInteresseService(
     }
 
     fun buscarTodos() : MutableList<PontoDeInteresse>{
-        // todo - colocar log
-        return pontoDeInteresseRepository.findAll()
+        log.info("m=buscarTodos; step=start;")
+        val pontoDeInteresseLista =  pontoDeInteresseRepository.findAll()
+        log.info("m=buscarTodos; step=finished; resposta=${pontoDeInteresseLista}")
+        return pontoDeInteresseLista
     }
 }

@@ -11,6 +11,7 @@ import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.Polygon
 import org.locationtech.jts.util.GeometricShapeFactory
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
@@ -23,9 +24,14 @@ class RelatorioService(
 	val pontoDeInteresseService: PontoDeInteresseService,
 ) {
 
+	private val log = LoggerFactory.getLogger(this::class.java)
+
+	//todo colocar log
+
 	fun buscarPorFiltro(posicaoVeiculoFilter: PosicaoVeiculoFilter?): MutableMap<String, List<PontoInteresseTempoDto>> {
 
 		var pontoDeInteresseLista = pontoDeInteresseService.buscarTodos()
+
 		var posicaoVeiculoLista = posicaoVeiculoService.buscarPorFiltro(posicaoVeiculoFilter)
 
 		val mapPlacaVeiculoPosicaoVeiculo = separarPorPlacaDeVeiculo(posicaoVeiculoLista)
@@ -100,11 +106,11 @@ class RelatorioService(
 		var mutableMap : MutableMap<String, List<PontoInteresseTempoDto>> = mutableMapOf<String, List<PontoInteresseTempoDto>>()
 
 		mapPlacaVeiculoPontoInteresseTempo.forEach{
-			var PontoInteresseTempoDtoLista = mutableListOf<PontoInteresseTempoDto>()
+			var pontoInteresseTempoDtoLista = mutableListOf<PontoInteresseTempoDto>()
 			for(mapNomeLocalTempo in it.value){
-				PontoInteresseTempoDtoLista.add(PontoInteresseTempoDto(mapNomeLocalTempo.key,mapNomeLocalTempo.value))
+				pontoInteresseTempoDtoLista.add(PontoInteresseTempoDto(mapNomeLocalTempo.key,mapNomeLocalTempo.value))
 			}
-			mutableMap.put(it.key,PontoInteresseTempoDtoLista)
+			mutableMap.put(it.key,pontoInteresseTempoDtoLista)
 		}
 		return mutableMap
 	}

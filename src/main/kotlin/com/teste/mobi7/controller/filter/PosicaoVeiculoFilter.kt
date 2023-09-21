@@ -2,7 +2,7 @@ package com.teste.mobi7.controller.filter
 
 import java.time.LocalDate
 
-class PosicaoVeiculoFilter(
+data class PosicaoVeiculoFilter(
 	var placaVeiculo: String?,
 	var dataPosicao: LocalDate?
 ) {
