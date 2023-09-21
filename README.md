@@ -12,4 +12,10 @@ Teste para verificar as habilidades técnicas e resolução de problemas em uma 
  
 ## Rodando o projeto
 
-Para rodar a aplicacao basta fazer o download do projeto, rodar *docker-compose -up*, na raiz do projeto, para subir o container do **Postgres** (ou apenas mudar para o perfil de teste que utiliza o **H2**)
+Para rodar a aplicação basta fazer o download do projeto, rodar *docker-compose -up*, na raiz do projeto, para subir o contêiner do **PostgreSQL** (ou apenas mudar para o perfil de teste que utiliza o **H2**)
+
+
+#### OBS
+
+Por padrão o projeto está configurado para rodar na porta **8080**, se atente para isso antes de rodar o projeto.
+
